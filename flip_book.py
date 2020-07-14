@@ -10,6 +10,8 @@ from typing import List
 from typing import Optional
 from typing import Sequence
 
+DEFAULT_FRAME_RATE = 4
+
 test_directory = "testing"
 
 
@@ -35,7 +37,7 @@ def load_file(filename: str) -> str:
     return data
 
 
-def curses_main(screen, file_list: List[str]) -> None:
+def curses_main(screen, file_list: List[str], frame_rate: int) -> None:
     curses.curs_set(0)  # Set the cursor to off.
     screen.timeout(0)  # Turn blocking off for screen.getch().
     play = True
@@ -62,13 +64,18 @@ def curses_main(screen, file_list: List[str]) -> None:
         elif ch == 110 and not play:  # n
             if pointer <= len(file_list):
                 pointer += 1
-        sleep(0.25)
+        sleep(1 / frame_rate)
 
 
 def main(argv: Optional[Sequence[str]] = None) -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("directory",
                         help="root directory containing the text files")
+    parser.add_argument("-f", "--frame_rate",
+                        choices=[1, 2, 4, 8],
+                        default=DEFAULT_FRAME_RATE,
+                        type=int,
+                        help="frame (slide) per second.  Default 4")
     args = parser.parse_args(argv)
 
     file_list = get_file_list(args.directory)
@@ -76,7 +83,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         print("No flip book text files found")
         return 1
     else:
-        curses.wrapper(curses_main, file_list)
+        curses.wrapper(curses_main, file_list, args.frame_rate)
     return 0
 
 
