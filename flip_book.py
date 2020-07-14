@@ -38,12 +38,31 @@ def load_file(filename: str) -> str:
 def curses_main(screen, file_list: List[str]) -> None:
     curses.curs_set(0)  # Set the cursor to off.
     screen.timeout(0)  # Turn blocking off for screen.getch().
-    for file in file_list:
-        file_data = load_file(file)
+    play = True
+    pointer = 0
+    while True:
+        file_data = load_file(file_list[pointer])
         screen.clear()
         screen.addstr(0, 0, file_data)
         screen.refresh()
-        sleep(.25)
+        if play:
+            pointer += 1
+        if pointer >= len(file_list):
+            break
+        ch = screen.getch()
+        if ch in [81, 113]:  # q, Q
+            break
+        elif ch == 112:  # p
+            play = not play  # flips play value between True and False
+        elif ch == 98 and not play:  # b
+            if pointer == 0:
+                pass
+            else:
+                pointer -= 1
+        elif ch == 110 and not play:  # n
+            if pointer <= len(file_list):
+                pointer += 1
+        sleep(0.25)
 
 
 def main(argv: Optional[Sequence[str]] = None) -> int:
