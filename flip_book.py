@@ -14,13 +14,13 @@ test_directory = "testing"
 
 
 def get_file_list(directory: str) -> list:
-    # todo check and ignore non-numbered files
+    # file names must be digits only
     file_list = []
     if os.path.isdir(directory):
         for item in os.listdir(directory):
             item_path = os.path.join(directory, item)
             tags = identify.tags_from_path(item_path)
-            if "text" in tags:
+            if "text" in tags and item.isdigit():
                 file_list.append(item_path)
         else:
             file_list.sort()
@@ -53,7 +53,11 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     args = parser.parse_args(argv)
 
     file_list = get_file_list(args.directory)
-    curses.wrapper(curses_main, file_list)
+    if len(file_list) == 0:
+        print("No flip book text files found")
+        return 1
+    else:
+        curses.wrapper(curses_main, file_list)
     return 0
 
 
