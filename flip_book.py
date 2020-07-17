@@ -9,6 +9,7 @@ from identify import identify
 from typing import List
 from typing import Optional
 from typing import Sequence
+from typing import Tuple
 
 DEFAULT_FRAME_RATE = 4
 
@@ -31,10 +32,13 @@ def get_file_list(directory: str) -> list:
         return []
 
 
-def load_file(filename: str) -> str:
+def load_file(filename: str) -> Tuple[str, str]:
     with open(filename, "r") as f:
         data = f.read()
-    return data
+    if "#fb_info#" in data:
+        data_first, last_line = data.split("#fb_info#")
+        return data_first, last_line
+    return data, ""
 
 
 def curses_main(screen, file_list: List[str], frame_rate: int) -> None:
@@ -43,7 +47,7 @@ def curses_main(screen, file_list: List[str], frame_rate: int) -> None:
     play = True
     pointer = 0
     while True:
-        file_data = load_file(file_list[pointer])
+        file_data, last_line = load_file(file_list[pointer])
         screen.clear()
         screen.addstr(0, 0, file_data)
         screen.refresh()
