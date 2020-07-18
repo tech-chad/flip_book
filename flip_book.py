@@ -45,11 +45,12 @@ def load_file(filename: str) -> Tuple[str, str]:
 def curses_main(screen,
                 file_list: List[str],
                 frame_rate: int,
-                show_last_line: bool) -> None:
+                show_last_line: bool,
+                goto_slide: int) -> None:
     curses.curs_set(0)  # Set the cursor to off.
     screen.timeout(0)  # Turn blocking off for screen.getch().
     play = True
-    pointer = 0
+    pointer = goto_slide
     while True:
         size_y, size_x = screen.getmaxyx()
         file_data, last_line = load_file(file_list[pointer])
@@ -89,6 +90,8 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
                         help="frame (slide) per second.  Default 4")
     parser.add_argument("-s", "--show_slide_info", action="store_true",
                         help="Show slide number and slide last line")
+    parser.add_argument("-g", "--goto_slide", default=0, type=int,
+                        help="goto to slide number")
     args = parser.parse_args(argv)
 
     file_list = get_file_list(args.directory)
@@ -99,7 +102,8 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         curses.wrapper(curses_main,
                        file_list,
                        args.frame_rate,
-                       args.show_slide_info)
+                       args.show_slide_info,
+                       args.goto_slide)
     return 0
 
 
