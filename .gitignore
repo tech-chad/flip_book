@@ -1,1 +1,4 @@
 /venv/
+build
+dist
+flip_book.egg-info
