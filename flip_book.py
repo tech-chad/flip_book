@@ -35,10 +35,11 @@ def get_file_list(directory: str) -> list:
 def load_file(filename: str) -> Tuple[str, str]:
     with open(filename, "r") as f:
         data = f.read()
+    head, tail = os.path.split(filename)
     if "#fb_info#" in data:
         data_first, last_line = data.split("#fb_info#")
-        return data_first, last_line
-    return data, ""
+        return data_first, f"{tail}" + last_line
+    return data, f"{tail}"
 
 
 def curses_main(screen,
