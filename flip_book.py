@@ -46,7 +46,8 @@ def curses_main(screen,
                 file_list: List[str],
                 frame_rate: int,
                 show_last_line: bool,
-                goto_slide: int) -> None:
+                goto_slide: int,
+                controls: bool) -> None:
     curses.curs_set(0)  # Set the cursor to off.
     screen.timeout(0)  # Turn blocking off for screen.getch().
     play = True
@@ -66,19 +67,19 @@ def curses_main(screen,
         ch = screen.getch()
         if ch in [81, 113]:  # q, Q
             break
-        elif ch == 115:  # s
+        elif ch == 115 and controls:  # s
             show_last_line = not show_last_line
-        elif ch == 112:  # p
+        elif ch == 112 and controls:  # p
             play = not play  # flips play value between True and False
-        elif ch == 98 and not play:  # b
+        elif ch == 98 and not play and controls:  # b
             if pointer == 0:
                 pass
             else:
                 pointer -= 1
-        elif ch == 110 and not play:  # n
+        elif ch == 110 and not play and controls:  # n
             if pointer <= len(file_list):
                 pointer += 1
-        elif ch == 2 and not play:  # ctrl-b
+        elif ch == 2 and not play and controls:  # ctrl-b
             pointer = 0
         sleep(1 / frame_rate)
 
@@ -96,6 +97,8 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
                         help="Show slide number and slide last line")
     parser.add_argument("-g", "--goto_slide", default=0, type=int,
                         help="goto to slide number")
+    parser.add_argument("-d", dest="controls", action="store_false",
+                        help="disable controls (only q to quit works)")
     args = parser.parse_args(argv)
 
     file_list = get_file_list(args.directory)
@@ -107,7 +110,8 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
                        file_list,
                        args.frame_rate,
                        args.show_slide_info,
-                       args.goto_slide)
+                       args.goto_slide,
+                       args.controls)
     return 0
 
 
