@@ -66,6 +66,8 @@ def curses_main(screen,
         ch = screen.getch()
         if ch in [81, 113]:  # q, Q
             break
+        elif ch == 115:  # s
+            show_last_line = not show_last_line
         elif ch == 112:  # p
             play = not play  # flips play value between True and False
         elif ch == 98 and not play:  # b
@@ -76,6 +78,8 @@ def curses_main(screen,
         elif ch == 110 and not play:  # n
             if pointer <= len(file_list):
                 pointer += 1
+        elif ch == 2 and not play:  # ctrl-b
+            pointer = 0
         sleep(1 / frame_rate)
 
 
