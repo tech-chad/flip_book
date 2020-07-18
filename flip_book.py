@@ -41,15 +41,21 @@ def load_file(filename: str) -> Tuple[str, str]:
     return data, ""
 
 
-def curses_main(screen, file_list: List[str], frame_rate: int) -> None:
+def curses_main(screen,
+                file_list: List[str],
+                frame_rate: int,
+                show_last_line: bool) -> None:
     curses.curs_set(0)  # Set the cursor to off.
     screen.timeout(0)  # Turn blocking off for screen.getch().
     play = True
     pointer = 0
     while True:
+        size_y, size_x = screen.getmaxyx()
         file_data, last_line = load_file(file_list[pointer])
         screen.clear()
         screen.addstr(0, 0, file_data)
+        if show_last_line:
+            screen.addstr(size_y - 2, 0, f"#{pointer}  {last_line}")
         screen.refresh()
         if play:
             pointer += 1
@@ -80,6 +86,8 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
                         default=DEFAULT_FRAME_RATE,
                         type=int,
                         help="frame (slide) per second.  Default 4")
+    parser.add_argument("-s", "--show_slide_info", action="store_true",
+                        help="Show slide number and slide last line")
     args = parser.parse_args(argv)
 
     file_list = get_file_list(args.directory)
@@ -87,7 +95,10 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         print("No flip book text files found")
         return 1
     else:
-        curses.wrapper(curses_main, file_list, args.frame_rate)
+        curses.wrapper(curses_main,
+                       file_list,
+                       args.frame_rate,
+                       args.show_slide_info)
     return 0
 
 
